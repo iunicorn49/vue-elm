@@ -18,19 +18,20 @@ module.exports = {
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
-    publicPath: process.env.NODE_ENV === 'production'
+    publicPath: process.env.NODE_ENV === 'production' // 静态资源绝对路径
       ? config.build.assetsPublicPath
       : config.dev.assetsPublicPath
   },
   resolve: {
-    extensions: ['.js', '.vue', '.json'],
-    alias: {
+    extensions: ['.js', '.vue', '.json'], // 自动补全文件后缀名
+    alias: { // 别名
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
+      'components': resolve('src/components')
     }
   },
   module: {
-    rules: [
+    rules: [ // 编译
       {
         test: /\.vue$/,
         loader: 'vue-loader',
