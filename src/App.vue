@@ -1,34 +1,62 @@
 <template>
   <div id="app">
-    <v-header></v-header>
-    <div class="tab">
-      <div class="tab-item">商品</div>
-      <div class="tab-item">评论</div>
-      <div class="tab-item">商家</div>
+    <v-header :seller="seller"></v-header>
+    <div class="tab border-1px">
+      <div class="tab-item">
+        <router-link to="/goods">商品</router-link>
+      </div>
+      <div class="tab-item">
+        <router-link to="/ratings">评论</router-link>
+      </div>
+      <div class="tab-item">
+        <router-link to="/seller">商家</router-link>
+      </div>
     </div>
-    <div class="content">
-      content
-    </div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import vHeader from 'components/header/header'
+  import vHeader from 'components/header/header'
+  import { ERR_OK } from 'common/js/config.js'
 
-export default {
-  name: "App",
-  components: {
-    vHeader
+  export default {
+    name: "App",
+    data() {
+      return {
+        seller: {}
+      }
+    },
+    created() {
+      this.$http.get('/api/seller').then(res => {
+        let result = res.data
+        if (result.errno === ERR_OK) {
+          this.seller = result.data
+        }
+      })
+    },
+    components: {
+      vHeader
+    }
   }
-}
 </script>
+
 <style lang="stylus" scoped>
+  @import './common/stylus/mixin.styl'
+
   .tab
     display flex
     widht 100%
     height 40px
     line-height 40px
+    border-1px(rgba(7, 17, 27, 0.1))
     .tab-item
       flex 1
       text-align center
+      a
+        display block
+        font-size 14px
+        color rbg(77, 85, 93)
+        &.r-active
+          color rgb(240, 20, 20)
 </style>
