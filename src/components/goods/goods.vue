@@ -7,11 +7,35 @@
 						<span v-show="item.type > 0" class="icon" :class="classMap[item.type]"></span>
 						{{item.name}}
 					</span>
-
 				</li>
 			</ul>
 		</div>
-		<div class="foods-wrapper"></div>
+		<div class="foods-wrapper">
+			<ul>
+				<li v-for="(item, index) in goods" :key="index" class="food-list">
+					<h1 class="title">{{item.name}}</h1>
+					<ul>
+						<li v-for="(food, fIndex) in item.foods" :key="fIndex" class="food-item border-1px">
+							<div class="icon">
+								<img width="57" :src="food.icon">
+							</div>
+							<div class="content">
+								<h2 class="name">{{food.name}}</h2>
+								<p class="desc">{{food.description}}</p>
+								<div class="extra">
+									<span>月售{{food.sellCount}}份</span>
+									<span>好评率{{food.rating}}%</span>
+								</div>
+								<div class="price">
+									<span>${{food.price}}</span>
+									<span v-show="food.oldPrice">${{food.oldPrice}}</span>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
 	</div>
 </template>
 
@@ -54,6 +78,7 @@
 			flex 0 0 80px // flex 等分 缩放 占位 
 			width 80px // 安卓兼容问题, 需要额外写一个width
 			background #f3f5f7
+
 			.menu-item
 				display table
 				height 54px
@@ -85,7 +110,34 @@
 					vertical-align middle
 					font-size 12px
 					border-1px(rgba(7,17,27,.1))
+
 		.foods-wrapper
 			flex 1
-			background #fff
+			.title
+				padding-left 14px
+				height 26px
+				line-height 26px
+				border-right 2px solid #d9dde1
+				font-size 12px
+				color rgb(147,153,159)
+				background #f3f5f7
+			.food-item
+				display flex
+				margin 18px
+				padding-bottom 18px
+				border-1px(rgba(7,17,27,.1))
+				&:last-child
+					border-none()
+					margin-bottom 0
+				.icon
+					flex 0 0 57px
+					margin-right 10px
+				.content
+					flex 1
+				  .name
+						margin 2px 0 8px 0
+						height 14px
+						font-size 14px
+						line-height 14px
+						color rgb(7,17,27)
 </style>
