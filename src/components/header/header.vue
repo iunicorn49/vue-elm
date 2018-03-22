@@ -297,8 +297,6 @@
 				margin -64px auto 0 auto
 				clear both
 				font-size 32px
-
-
 	.fade-enter-active, .fade-leave-active
 		transition: all .5s
 		opacity 1
