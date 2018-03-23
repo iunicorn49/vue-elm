@@ -33,6 +33,9 @@
 								<div class="price">
 									<span class="now">${{food.price}}</span><span class="old" v-show="food.oldPrice">${{food.oldPrice}}</span>
 								</div>
+								<div class="cart-control-wrapper">
+									<cart-control :food="food"></cart-control>
+								</div>
 							</div>
 						</li>
 					</ul>
@@ -49,6 +52,7 @@
 <script>
 	import BScroll from 'better-scroll'
 	import Cart from 'components/cart/cart'
+	import CartControl from 'components/cartControl/cartControl'
 
 	const ERR_OK = 0
 
@@ -97,7 +101,8 @@
 					click: true
 				})
 				this.foodsScroll = new BScroll(foods, {
-					probeType: 3
+					probeType: 3,
+					click: true
 				})
 				this.foodsScroll.on('scroll', pos => {
 					this.scrollY = Math.abs(Math.round(pos.y))
@@ -120,7 +125,8 @@
 			}
 		},
 		components: {
-			Cart
+			Cart,
+			CartControl
 		}
 	}
 </script>
@@ -233,4 +239,8 @@
 							text-decoration line-through
 							font-size 10px
 							color rgb(147,153,159)
+					.cart-control-wrapper
+						position absolute
+						bottom 0
+						right 0
 </style>
