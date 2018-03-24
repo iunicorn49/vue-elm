@@ -1,36 +1,41 @@
 <template>
 	<div class="cart-control">
-		<div @click.stop="decrease" class="decrease icon-remove_circle_outline" v-show="count > 0"></div>
-		<div class="count" v-show="count > 0">{{count}}</div>
-		<div @click.stop="add" class="add icon-add_circle"></div>
+		<transition name="fade">
+			<div @click.stop="decrease" class="decrease icon-remove_circle_outline" v-show="food.count > 0"></div>
+		</transition>
+		<transition name="fade">
+			<div class="count" v-show="food.count > 0">{{food.count}}</div>
+		</transition>
+		<div ref="add" @click.stop="add" class="add icon-add_circle"></div>
 	</div>
 </template>
 
 <script>
+
 	export default {
 		props: {
 			food: {type: Object, default() {return {}}}
 		},
-		data() {
-			return {
-				count: 0
-			}
-		},
-		created() {
-			this.count = this.food.count ? this.food.count : this.count
-		},
 		methods: {
 			add() {
-				this.count++
+				if (!this.food.count) {
+					this.$set(this.food, 'count', 1)
+				} else {
+					this.food.count++
+				}
+				this.$emit('isAdd', this.$refs.add)
 			},
 			decrease() {
-				this.count--
+				if (!this.food.count || this.food.count <= 0) return
+				this.food.count--
 			}
 		}
 	}
 </script>
 
 <style lang="stylus" scoped>
+	$transiton-time = .7s
+
 	.cart-control
 		font-size 0
 		.decrease, .count, .add
@@ -48,4 +53,15 @@
 			text-align center
 			font-size 10px
 			color rgb(147,153,159)
+
+	.fade-enter-active
+		transition $transiton-time
+	.fade-leave-active
+		transition $transiton-time
+		transform translateX(40px) rotate(90deg)
+		opacity 0
+	.fade-enter
+		transition $transiton-time
+		transform translateX(40px) rotate(90deg)
+		opacity 0	
 </style>

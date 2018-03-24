@@ -15,6 +15,11 @@
 				<div :class="{'enough': totalPrice >= minPrice}" class="pay">{{payDesc}}</div>
 			</div>
 		</div>
+		<div class="ball-container">
+			<transition name="ball" v-for="(ball, index) in balls" :key="index">
+				<div class="ball"></div>
+			</transition>
+		</div>
 	</div>
 </template>
 
@@ -25,11 +30,22 @@
 			deliveryPrice: {type: Number, default: 0},
 			minPrice: {type: Number, default: 0}
 		},
+		data() {
+			return {
+				balls: [
+					{show: false},
+					{show: false},
+					{show: false},
+					{show: false},
+					{show: false}
+				]
+			}
+		},
 		computed: {
 			totalPrice() {
 				let total = 0
 				this.selectFoods.forEach(item => {
-					total += item.price * food.count
+					total += item.price * item.count
 				})
 				return total
 			},
@@ -48,6 +64,11 @@
 				} else {
 					return '去结算'
 				}
+			}
+		},
+		methods: {
+			drop(target) {
+				console.log(target)
 			}
 		}
 	}
@@ -138,4 +159,17 @@
 					&.enough
 						background #00b43c
 						color #fff
+
+	.ball-container
+		.ball
+			position fixed
+			left 32px
+			bottom 22px
+			z-index 200
+			width 16px
+			height 16px
+			border-radius 50%
+			background #ff5d5d
+			transition 1s
+
 </style>

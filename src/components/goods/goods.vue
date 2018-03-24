@@ -34,7 +34,7 @@
 									<span class="now">${{food.price}}</span><span class="old" v-show="food.oldPrice">${{food.oldPrice}}</span>
 								</div>
 								<div class="cart-control-wrapper">
-									<cart-control :food="food"></cart-control>
+									<cart-control @isAdd="isAdd" :food="food"></cart-control>
 								</div>
 							</div>
 						</li>
@@ -43,6 +43,8 @@
 			</ul>
 		</div>
 		<cart
+			ref="cart"
+			:select-foods="selectFoods"
 			:delivery-price="seller.deliveryPrice"
 			:min-price="seller.minPrice"
 		></cart>
@@ -78,6 +80,17 @@
 					}
 				}
 				return 0
+			},
+			selectFoods() {
+				let foods = []
+				this.goods.forEach(good => {
+					good.foods.forEach(food => {
+						if (food.count) {
+							foods.push(food)
+						}
+					})
+				})
+				return foods
 			}
 		},
 		created() {
@@ -122,6 +135,12 @@
 				if (!e._constructed) return
 				let el = this.$refs.foods.querySelectorAll('.food-list-hook')[index]
 				this.foodsScroll.scrollToElement(el, 300)
+			},
+			isAdd(data) {
+				this._drop(data)
+			},
+			_drop(target){
+				this.$refs.cart.drop(target)
 			}
 		},
 		components: {
