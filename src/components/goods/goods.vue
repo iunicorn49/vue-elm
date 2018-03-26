@@ -140,7 +140,9 @@
 				this._drop(data)
 			},
 			_drop(target){
-				this.$refs.cart.drop(target)
+				this.$nextTick(() => {
+					this.$refs.cart.drop(target)
+				})
 			}
 		},
 		components: {

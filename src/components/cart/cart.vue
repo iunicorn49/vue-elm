@@ -16,8 +16,12 @@
 			</div>
 		</div>
 		<div class="ball-container">
-			<transition name="ball" v-for="(ball, index) in balls" :key="index">
-				<div class="ball"></div>
+			<transition name="ball" v-for="(ball, index) in balls" 
+				@before-enter="beforeEnter"
+				@enter="enter"
+				@after-enter="afterEnter"
+			:key="index">
+				<div class="ball" v-show="ball.show"></div>
 			</transition>
 		</div>
 	</div>
@@ -38,7 +42,8 @@
 					{show: false},
 					{show: false},
 					{show: false}
-				]
+				],
+				dropBalls: []
 			}
 		},
 		computed: {
@@ -68,7 +73,40 @@
 		},
 		methods: {
 			drop(target) {
-				console.log(target)
+				let ball = this.balls.find(item => {
+					return !item.show
+				})
+				ball.show = true
+				ball.el = target
+				this.dropBalls.push(ball)
+			},
+			beforeEnter(el) {
+				this.balls.forEach((item, index) => {
+					let rect = null
+					if (item.show) {
+						rect = item.el.getBoundingClientRect() // 获取元素基于视口的坐标
+						let x = rect.left - 32
+						let y = -(window.innerHeight - rect.top - 22)
+						el.style.display = ''
+						el.style.webkitTransform = `translate3d(${x}px,${y}px,0)`
+						el.style.transform = `translate3d(${x}px,${y}px,0)`
+					}
+				})
+			},
+			enter(el) {
+				/** 主动触发浏览器重绘, 变量并不使用 */
+				let rf = el.offsetHeight
+				this.$nextTick(() => {
+					el.style.webkitTransform = 'translate3d(0,0,0)'
+					el.style.transform = 'translate3d(0,0,0)'
+				})
+			},
+			afterEnter(el) {
+				let ball = this.dropBalls.shift()
+				if (ball) {
+					ball.show = false
+					el.style.display = 'none'
+				}
 			}
 		}
 	}
@@ -169,7 +207,6 @@
 			width 16px
 			height 16px
 			border-radius 50%
-			background #ff5d5d
-			transition 1s
-
+			background #00a0dc
+			transition all 1s cubic-bezier(0.49, -0.29, 0.75, 0.41)
 </style>

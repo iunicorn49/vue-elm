@@ -58,10 +58,10 @@
 		transition $transiton-time
 	.fade-leave-active
 		transition $transiton-time
-		transform translateX(40px) rotate(90deg)
+		transform translate3d(40px,0,0) rotate(90deg)
 		opacity 0
 	.fade-enter
 		transition $transiton-time
-		transform translateX(40px) rotate(90deg)
+		transform translate3d(40px,0,0) rotate(90deg)
 		opacity 0	
 </style>
