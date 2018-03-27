@@ -1,55 +1,61 @@
 <template>
-	<div class="cart">
-		<div class="content" @click.stop="toggleList">
-			<div class="content-left">
-				<div class="logo-wrapper">
-					<div class="logo" :class="{'highlight': totalCount > 0}">
-						<i class="icon-shopping_cart"></i>
+	<div>
+		<div class="cart">
+			<div class="content" @click.stop="toggleList">
+				<div class="content-left">
+					<div class="logo-wrapper">
+						<div class="logo" :class="{'highlight': totalCount > 0}">
+							<i class="icon-shopping_cart"></i>
+						</div>
+						<div class="num" v-show="totalCount > 0">{{totalCount}}</div>
 					</div>
-					<div class="num" v-show="totalCount > 0">{{totalCount}}</div>
+					<div class="price" :class="{'highlight': totalPrice > 0}">$ {{totalPrice}}</div>
+					<div class="desc">另需配送费${{deliveryPrice}}元</div>
 				</div>
-				<div class="price" :class="{'highlight': totalPrice > 0}">$ {{totalPrice}}</div>
-				<div class="desc">另需配送费${{deliveryPrice}}元</div>
+				<div @click.stop="pay" class="content-right">
+					<div :class="{'enough': totalPrice >= minPrice}" class="pay">{{payDesc}}</div>
+				</div>
 			</div>
-			<div class="content-right">
-				<div :class="{'enough': totalPrice >= minPrice}" class="pay">{{payDesc}}</div>
+			<div class="ball-container">
+				<transition name="ball" v-for="(ball, index) in balls" 
+					@before-enter="beforeEnter"
+					@enter="enter"
+					@after-enter="afterEnter"
+				:key="index">
+					<div class="ball" v-show="ball.show"></div>
+				</transition>
 			</div>
-		</div>
-		<div class="ball-container">
-			<transition name="ball" v-for="(ball, index) in balls" 
-				@before-enter="beforeEnter"
-				@enter="enter"
-				@after-enter="afterEnter"
-			:key="index">
-				<div class="ball" v-show="ball.show"></div>
+			<transition name="fold">
+				<div class="shopcart-list" v-show="listShow">
+					<div class="list-header">
+						<h1 class="title">购物车</h1>
+						<span class="empty" @click.stop="empty">清空</span>
+					</div>
+					<div class="list-content" ref="listContent">
+						<ul>
+							<li class="food" v-for="(food, index) in selectFoods" :key="index">
+								<span class="name">{{food.name}}</span>
+								<div class="price">
+									<span>${{food.price * food.count}}</span>
+								</div>
+								<div class="cartcontrol-wrapper">
+									<cart-control :food="food"></cart-control>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
 			</transition>
 		</div>
-		<transition name="fold">
-			<div class="shopcart-list" v-show="listShow">
-				<div class="list-header">
-					<h1 class="title">购物车</h1>
-					<span class="empty">清空</span>
-				</div>
-				<div class="list-content">
-					<ul>
-						<li class="food" v-for="(food, index) in selectFoods" :key="index">
-							<span class="name">{{food.name}}</span>
-							<div class="price">
-								<span>${{food.price * food.count}}</span>
-							</div>
-							<div class="cartcontrol-wrapper">
-								<cart-control :food="food"></cart-control>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</div>
+		<transition name="mask">
+			<div @click.stop="fold = true" class="list-mask" v-show="listShow"></div>
 		</transition>
 	</div>
 </template>
 
 <script>
 	import CartControl from '../cartControl/cartControl'
+	import BScroll from 'better-scroll'
 
 	export default {
 		props: {
@@ -77,6 +83,17 @@
 						return false
 					}
 				let show = !this.fold
+				if (show) {
+					this.$nextTick(() => {
+						if (!this.scroll) {
+							this.scroll = new BScroll(this.$refs.listContent, {
+								click: true
+							})
+						} else {
+							this.scroll.refresh()
+						}	
+					})
+				}
 				return show
 			},
 			totalPrice() {
@@ -104,6 +121,16 @@
 			}
 		},
 		methods: {
+			pay() {
+				if (this.totalPrice < this.minPrice) return
+				window.alert(`支付${this.totalPrice}元`)
+			},
+			empty() {
+				this.selectFoods.forEach(item => {
+					console.log(item)
+					item.count = 0
+				})
+			},
 			toggleList() {
 				if (!this.totalCount) return
 				this.fold = !this.fold
@@ -152,7 +179,9 @@
 </script>
 
 <style lang="stylus" scoped>
+	@import '../../common/stylus/mixin.styl'
 	$transiton-time = .5s
+
 	.cart
 		position fixed
 		left 0
@@ -256,6 +285,10 @@
 			background #fff
 			transform translate3d(0, -100%, 0)
 			width 100%
+			&.fold-enter-active, &.fold-leave-active
+				transition: all $transiton-time
+			&.fold-enter, &.fold-leave-active
+				transform: translate3d(0, 0, 0)
 			.list-header
 				height 40px
 				line-height 40px
@@ -273,10 +306,43 @@
 			.list-content
 				padding 0 18px
 				max-height 217px
+				overflow hidden
+				background #fff
+				.food
+					position relative
+					padding 12px 0
+					box-sizing border-box
+					border-1px(rgba(7,17,27,.1))
+					.name
+						line-height 24px
+						font-size 14px
+						color rgb(7,17,27)
+					.price
+						position absolute
+						right 90px
+						bottom 12px
+						line-height 24px
+						font-size 14px
+						font-weight 700
+						color rgb(240,20,20)
+					.cartcontrol-wrapper
+						position absolute
+						right 0
+						bottom 6px
 
-		.fold-enter-active, .fold-leave-active
-			transition: all 1s
-		.fold-enter, .fold-leave-active
-			transform: translate3d(0, 0, 0)
 
+	.list-mask
+		position fixed
+		top 0
+		left 0
+		width 100%
+		height 100%
+		z-index 40
+		background rgba(7, 17, 27, 0.6)
+		backdrop-filter blur(10px)
+		&.mask-enter-active, &.mask-leave-active
+			transition: all $transiton-time
+			opacity 1
+		&.mask-enter, &.mask-leave-active
+			opacity 0
 </style>

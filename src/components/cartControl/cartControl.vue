@@ -34,7 +34,7 @@
 </script>
 
 <style lang="stylus" scoped>
-	$transiton-time = .7s
+	$transiton-time = .5s
 
 	.cart-control
 		font-size 0

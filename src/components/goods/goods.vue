@@ -1,53 +1,56 @@
 <template>
-	<div class="goods">
-		<div class="menu-wrapper" ref="menu">
-			<ul>
-				<li :class="{'current': currentIndex === index}"
-					@click.stop="selectMenu(index, $event)" 
-					v-for="(item, index) in goods" 
-					:key="index" 
-				class="menu-item">
-					<span class="text border-1px">
-						<span v-show="item.type > 0" class="icon" :class="classMap[item.type]"></span>
-						{{item.name}}
-					</span>
-				</li>
-			</ul>
+	<div>
+		<div class="goods">
+			<div class="menu-wrapper" ref="menu">
+				<ul>
+					<li :class="{'current': currentIndex === index}"
+						@click.stop="selectMenu(index, $event)" 
+						v-for="(item, index) in goods" 
+						:key="index" 
+					class="menu-item">
+						<span class="text border-1px">
+							<span v-show="item.type > 0" class="icon" :class="classMap[item.type]"></span>
+							{{item.name}}
+						</span>
+					</li>
+				</ul>
+			</div>
+			<div class="foods-wrapper" ref="foods">
+				<ul>
+					<li v-for="(item, index) in goods" :key="index" class="food-list-hook food-list">
+						<h1 class="title">{{item.name}}</h1>
+						<ul>
+							<li @click.stop="selectedFood(food)" v-for="(food, fIndex) in item.foods" :key="fIndex" class="food-item border-1px">
+								<div class="icon">
+									<img width="57" :src="food.icon">
+								</div>
+								<div class="content">
+									<h2 class="name">{{food.name}}</h2>
+									<p class="desc">{{food.description}}</p>
+									<div class="extra">
+										<span class="count">月售{{food.sellCount}}份</span>
+										<span>好评率{{food.rating}}%</span>
+									</div>
+									<div class="price">
+										<span class="now">${{food.price}}</span><span class="old" v-show="food.oldPrice">${{food.oldPrice}}</span>
+									</div>
+									<div class="cart-control-wrapper">
+										<cart-control @isAdd="isAdd" :food="food"></cart-control>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<cart
+				ref="cart"
+				:select-foods="selectFoods"
+				:delivery-price="seller.deliveryPrice"
+				:min-price="seller.minPrice"
+			></cart>
 		</div>
-		<div class="foods-wrapper" ref="foods">
-			<ul>
-				<li v-for="(item, index) in goods" :key="index" class="food-list-hook food-list">
-					<h1 class="title">{{item.name}}</h1>
-					<ul>
-						<li v-for="(food, fIndex) in item.foods" :key="fIndex" class="food-item border-1px">
-							<div class="icon">
-								<img width="57" :src="food.icon">
-							</div>
-							<div class="content">
-								<h2 class="name">{{food.name}}</h2>
-								<p class="desc">{{food.description}}</p>
-								<div class="extra">
-									<span class="count">月售{{food.sellCount}}份</span>
-									<span>好评率{{food.rating}}%</span>
-								</div>
-								<div class="price">
-									<span class="now">${{food.price}}</span><span class="old" v-show="food.oldPrice">${{food.oldPrice}}</span>
-								</div>
-								<div class="cart-control-wrapper">
-									<cart-control @isAdd="isAdd" :food="food"></cart-control>
-								</div>
-							</div>
-						</li>
-					</ul>
-				</li>
-			</ul>
-		</div>
-		<cart
-			ref="cart"
-			:select-foods="selectFoods"
-			:delivery-price="seller.deliveryPrice"
-			:min-price="seller.minPrice"
-		></cart>
+		<food ref="foodDetail" :food="selectFood"></food>
 	</div>
 </template>
 
@@ -55,6 +58,7 @@
 	import BScroll from 'better-scroll'
 	import Cart from 'components/cart/cart'
 	import CartControl from 'components/cartControl/cartControl'
+	import Food from 'components/food/food'
 
 	const ERR_OK = 0
 
@@ -67,7 +71,8 @@
 			return {
 				goods: [],
 				listHeight: [],
-				scrollY: 0
+				scrollY: 0,
+				selectFood: {}
 			}
 		},
 		computed: {
@@ -107,6 +112,10 @@
 			})
 		},
 		methods: {
+			selectedFood(food) {
+				this.selectFood = food
+				this.$refs.foodDetail.show()
+			},
 			_initScroll() {
 				let menu = this.$refs.menu
 				let foods = this.$refs.foods
@@ -147,7 +156,8 @@
 		},
 		components: {
 			Cart,
-			CartControl
+			CartControl,
+			Food
 		}
 	}
 </script>
@@ -216,7 +226,7 @@
 				padding-left 14px
 				height 26px
 				line-height 26px
-				border-right 2px solid #d9dde1
+				border-left 2px solid #d9dde1
 				font-size 12px
 				color rgb(147,153,159)
 				background #f3f5f7
