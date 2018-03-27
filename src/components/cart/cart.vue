@@ -1,6 +1,6 @@
 <template>
 	<div class="cart">
-		<div class="content">
+		<div class="content" @click.stop="toggleList">
 			<div class="content-left">
 				<div class="logo-wrapper">
 					<div class="logo" :class="{'highlight': totalCount > 0}">
@@ -24,10 +24,33 @@
 				<div class="ball" v-show="ball.show"></div>
 			</transition>
 		</div>
+		<transition name="fold">
+			<div class="shopcart-list" v-show="listShow">
+				<div class="list-header">
+					<h1 class="title">购物车</h1>
+					<span class="empty">清空</span>
+				</div>
+				<div class="list-content">
+					<ul>
+						<li class="food" v-for="(food, index) in selectFoods" :key="index">
+							<span class="name">{{food.name}}</span>
+							<div class="price">
+								<span>${{food.price * food.count}}</span>
+							</div>
+							<div class="cartcontrol-wrapper">
+								<cart-control :food="food"></cart-control>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</transition>
 	</div>
 </template>
 
 <script>
+	import CartControl from '../cartControl/cartControl'
+
 	export default {
 		props: {
 			selectFoods: {type: Array, default() {return []}},
@@ -43,10 +66,19 @@
 					{show: false},
 					{show: false}
 				],
-				dropBalls: []
+				dropBalls: [],
+				fold: true
 			}
 		},
 		computed: {
+			listShow() {
+				if (!this.totalCount) {
+						this.fold = true
+						return false
+					}
+				let show = !this.fold
+				return show
+			},
 			totalPrice() {
 				let total = 0
 				this.selectFoods.forEach(item => {
@@ -72,6 +104,10 @@
 			}
 		},
 		methods: {
+			toggleList() {
+				if (!this.totalCount) return
+				this.fold = !this.fold
+			},
 			drop(target) {
 				let ball = this.balls.find(item => {
 					return !item.show
@@ -108,11 +144,15 @@
 					el.style.display = 'none'
 				}
 			}
+		},
+		components: {
+			CartControl
 		}
 	}
 </script>
 
 <style lang="stylus" scoped>
+	$transiton-time = .5s
 	.cart
 		position fixed
 		left 0
@@ -197,16 +237,46 @@
 					&.enough
 						background #00b43c
 						color #fff
+		.ball-container
+			.ball
+				position fixed
+				left 32px
+				bottom 22px
+				z-index 200
+				width 16px
+				height 16px
+				border-radius 50%
+				background #00a0dc
+				transition all .5s
+		.shopcart-list
+			position absolute
+			top 0
+			left 0
+			z-index -1
+			background #fff
+			transform translate3d(0, -100%, 0)
+			width 100%
+			.list-header
+				height 40px
+				line-height 40px
+				padding 0 18px
+				background #f3f5f7
+				border-bottom 1px solid rgba(7,17,27,.1)
+				.title
+					float left
+					font-size 14px
+					color rgb(7,17,27)
+				.empty
+					float right 
+					font-size 12px
+					color rgb(0,160,220)
+			.list-content
+				padding 0 18px
+				max-height 217px
 
-	.ball-container
-		.ball
-			position fixed
-			left 32px
-			bottom 22px
-			z-index 200
-			width 16px
-			height 16px
-			border-radius 50%
-			background #00a0dc
-			transition all 1s cubic-bezier(0.49, -0.29, 0.75, 0.41)
+		.fold-enter-active, .fold-leave-active
+			transition: all 1s
+		.fold-enter, .fold-leave-active
+			transform: translate3d(0, 0, 0)
+
 </style>
