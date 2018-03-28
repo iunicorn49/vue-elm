@@ -7,31 +7,31 @@
 					<div class="back" @click.stop="hide">
 						<i class="icon-arrow_lift"></i>
 					</div>
+				</div>	
+				<div class="content">
+					<h1 class="title">{{food.name}}</h1>
+					<div class="detail">
+						<span class="sell-count">月售{{food.sellCount}}份</span>
+						<span class="rating">好评率{{food.rating}}</span>
+					</div>
+					<div class="price">
+						<span class="now">${{food.price}}</span><span class="old" v-show="food.oldPrice">${{food.oldPrice}}</span>
+					</div>
+					<div class="cartcontrol-wrapper">
+						<cart-control :food="food"></cart-control>
+					</div>
+					<div @click.stop="addFirst" class="buy" v-show="!food.count || food.count === 0">加入购物车</div>	
 				</div>
-			</div>	
-			<div class="content">
-				<h1 class="title">{{food.name}}</h1>
-				<div class="detail">
-					<span class="sell-count">月售{{food.sellCount}}份</span>
-					<span class="rating">好评率{{food.rating}}</span>
+				<split v-show="food.info"></split>
+				<div class="info" v-show="food.info">
+					<h1 class="title">商品信息</h1>
+					<p class="text">{{food.info}}</p>
 				</div>
-				<div class="price">
-					<span class="now">${{food.price}}</span><span class="old" v-show="food.oldPrice">${{food.oldPrice}}</span>
+				<split></split>
+				<div class="rating">
+					<h1 class="title">商品评价</h1>
+					<rating-select @evToogle="toogleContent" @evSelect="select" :ratings="food.ratings" :desc="desc" :selectType="selectType" :onlyContent="onlyContent"></rating-select>
 				</div>
-				<div class="cartcontrol-wrapper">
-					<cart-control :food="food"></cart-control>
-				</div>
-				<div @click.stop="addFirst" class="buy" v-show="!food.count || food.count === 0">加入购物车</div>	
-			</div>
-			<split v-show="food.info"></split>
-			<div class="info" v-show="food.info">
-				<h1 class="title">商品信息</h1>
-				<p class="text">{{food.info}}</p>
-			</div>
-			<split></split>
-			<div class="rating">
-				<h1 class="title">商品评价</h1>
-				<rating-select></rating-select>
 			</div>
 		</div>
 	</transition>
@@ -43,28 +43,47 @@
 	import Split from '../split/split'
 	import RatingSelect from '../ratingselect/ratingselect'
 
+	const POSITIVE = 0
+	const NEGATIVE = 1
+	const ALL = 2
+
 	export default {
 		props: {
 			food: {type: Object, default() {return {}}}
 		},
 		data() {
 			return {
-				showFlag: false
+				showFlag: false,
+				selectType: ALL,
+				onlyContent: true,
+				desc: {
+					all: '全部',
+					positive: '推荐',
+					negative: '吐槽'
+				}
 			}
 		},
-
 		methods: {
+			toogleContent() {
+				this.onlyContent = !this.onlyContent
+			},
+			select(type) {
+				this.selectType = type
+			},
 			addFirst() {
 				this.$set(this.food, 'count', 1)
 			},
 			show() {
 				this.showFlag = true
+				this.selectType = ALL
+				this.onlyContent = false
 				this.$nextTick(() => {
 					if (!this.scroll) {
 						this.scroll = new BScroll(this.$refs.food, {
 							click: true
 						})
 					} else {
+						console.log('this.scroll',this.scroll)
 						this.scroll.refresh()
 					}
 				})
@@ -175,4 +194,12 @@
 				font-size 12px
 				line-height 24px
 				color rgb(77,85,93)
+		.rating
+			padding-top 18px
+			.title
+				line-height 17px
+				margin-left 18px
+				font-size 14px
+				color rgb(7,17,27)
+
 </style>
