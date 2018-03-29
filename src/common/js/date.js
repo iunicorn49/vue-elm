@@ -22,5 +22,5 @@ export function formatDate(date, format) {
 }
 
 function _padLeftZero(str) {
-	return ('00' + str).substr(str.length)
+	return ('00' + str).substr()
 }
