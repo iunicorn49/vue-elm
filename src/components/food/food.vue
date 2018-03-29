@@ -31,6 +31,27 @@
 				<div class="rating">
 					<h1 class="title">商品评价</h1>
 					<rating-select @evToogle="toogleContent" @evSelect="select" :ratings="food.ratings" :desc="desc" :selectType="selectType" :onlyContent="onlyContent"></rating-select>
+					<div class="rating-wrapper">
+						<ul v-if="food.ratings && food.ratings.length">
+							<li v-show="needShow(rating.rateType, rating.text)" v-for="(rating, index) in food.ratings" :key="index" class="rating-item border-1px">
+								<div class="user">
+									<span class="name">{{rating.username}}</span>
+									<img class="avatar" width="12" height="12" :src="rating.avatar">
+								</div>
+								<div class="time">{{rating.rateTime | formatDate}}</div>
+								<p class="text">
+									<span 
+									:class="{
+										'icon-thumb_up': rating.rateType === 1,
+										'icon-thumb_down': rating.rateType === 0
+									}">
+									</span>
+									{{rating.text}}
+								</p>
+							</li>
+						</ul>
+						<div class="no-rating" v-else>暂无评价</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -42,9 +63,11 @@
 	import CartControl from 'components/cartControl/cartControl'
 	import Split from '../split/split'
 	import RatingSelect from '../ratingselect/ratingselect'
+	import { formatDate } from 'common/js/date'
 
-	const POSITIVE = 0
-	const NEGATIVE = 1
+
+	const POSITIVE = 1
+	const NEGATIVE = 0
 	const ALL = 2
 
 	export default {
@@ -64,11 +87,21 @@
 			}
 		},
 		methods: {
+			needShow(type, text) {
+				if (this.onlyContent && !text) return false
+				if (this.selectType === ALL) {
+					return true
+				} else {
+					return type === this.selectType
+				}
+			},
 			toogleContent() {
 				this.onlyContent = !this.onlyContent
+				this.refresh()
 			},
 			select(type) {
 				this.selectType = type
+				this.refresh()
 			},
 			addFirst() {
 				this.$set(this.food, 'count', 1)
@@ -83,13 +116,25 @@
 							click: true
 						})
 					} else {
-						console.log('this.scroll',this.scroll)
 						this.scroll.refresh()
 					}
 				})
 			},
 			hide() {
 				this.showFlag = false
+			},
+			refresh() {
+				if (this.scroll) {
+					this.$nextTick(() => {
+						this.scroll.refresh()
+					})
+				}
+			}
+		},
+		filters: {
+			formatDate(time) {
+				let date = new Date(time)
+				return formatDate(date, 'yyyy-MM-dd hh:mm')
 			}
 		},
 		components: {
@@ -101,6 +146,8 @@
 </script>
 
 <style lang="stylus" scoped>
+	@import '../../common/stylus/mixin'
+
 	.food
 		position fixed
 		top 0
@@ -201,5 +248,46 @@
 				margin-left 18px
 				font-size 14px
 				color rgb(7,17,27)
-
+			.rating-wrapper
+				padding 0 18px
+				.rating-item
+					position relative
+					padding 16px 0
+					border-1px(rgba(7,17,27,.1))
+					.user
+						position absolute
+						right 0
+						top 16px
+						font-size 0
+						line-height 12px
+						.name
+							display inline-block
+							vertical-align top
+							margin-right 6px
+							font-size 10px
+							color rgb(145,153,159)
+						.avatar
+							border-radius 50%
+					.time
+						margin-bottom 6px
+						line-height 12px
+						font-size 10px
+						color rgb(145,153,159)
+					.text
+						line-height 16px
+						font-size 12px
+						color	rgb(7,17,27)
+						.icon-thumb_up, .icon-thumb_down
+							margin-right 4px
+							line-height 16px
+							font-size 12px
+						.icon-thumb_up
+							color rgb(0,160,220)
+						.icon-thumb_down
+							color rgb(147,153,159)
+				.no-rating
+					padding 16px 0
+					font-size 12px
+					color rgb(147,153,159)
+					
 </style>

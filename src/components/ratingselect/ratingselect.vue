@@ -14,8 +14,8 @@
 
 <script>
 
-	const POSITIVE = 0
-	const NEGATIVE = 1
+	const POSITIVE = 1
+	const NEGATIVE = 0
 	const ALL = 2
 
 	export default {
